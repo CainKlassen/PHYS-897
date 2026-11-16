@@ -1,5 +1,7 @@
+#%matplotlib inline
 import matplotlib.pyplot as plt
 import numpy as np
+from metpy.plots import SkewT
 
 # ------------------------------------------------------------------------------------------------------------------- #
 # -------------------------------------------- FUNCTION GENERIC_HIST() ---------------------------------------------- #
@@ -300,7 +302,29 @@ def plot_Generic_Scatter(xdata, ydata, xlabel = "", ylabel = "", title = "", Dat
 # ------------------------------------------------- END OF FUNCTION ------------------------------------------------- #
 # ------------------------------------------------------------------------------------------------------------------- #
 
+#  Resuable function to plot the temperature data on a Skew-T chart
+def make_skewT(Tglobal):
+    fig = plt.figure(figsize=(9, 9))
+    skew = SkewT(fig, rotation=30)
+    skew.plot(Tglobal.level, Tglobal, color='black', linestyle='-', linewidth=2, label='Observations')
+    skew.ax.set_ylim(1050, 10)
+    skew.ax.set_xlim(-90, 45)
+    # Add the relevant special lines
+    skew.plot_dry_adiabats(linewidth=0.5)
+    skew.plot_moist_adiabats(linewidth=0.5)
+    #skew.plot_mixing_lines()
+    skew.ax.legend()
+    skew.ax.set_xlabel('Temperature (degC)', fontsize=14)
+    skew.ax.set_ylabel('Pressure (hPa)', fontsize=14)
+    return skew
 
+#  and a function to add extra profiles to this chart
+def add_profile(skew, model, linestyle='-', color=None):
+    line = skew.plot(model.lev, model.Tatm - 273.15,
+             label=model.name, linewidth=2)[0]
+    skew.plot(1000, model.Ts - 273.15, 'o',
+              markersize=8, color=line.get_color())
+    skew.ax.legend()
 
 
 
